@@ -3,7 +3,7 @@ const modulename = 'WebServer:Router';
 const Router = require('@koa/router');
 const KoaRateLimit = require('koa-ratelimit');
 
-const { dir, log, logOk, logWarn, logError} = require('../../extras/console')(modulename);
+const { dir, log, logOk, logWarn, logError } = require('../../extras/console')(modulename);
 const webRoutes = require('../../webroutes');
 const {requestAuth} = require('./requestAuthenticator');
 
@@ -60,6 +60,8 @@ module.exports = router = (config) =>{
 
     //Diagnostic routes
     router.get('/diagnostics', requestAuth('web'), webRoutes.diagnostics);
+    router.get('/advanced', requestAuth('web'), webRoutes.advanced.get);
+    router.post('/advanced', requestAuth('api'), webRoutes.advanced.actions);
 
     //Data routes
     router.get('/txAdminLog', requestAuth('web'), webRoutes.txAdminLog);

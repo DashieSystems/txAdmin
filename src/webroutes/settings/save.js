@@ -3,7 +3,7 @@ const modulename = 'WebServer:SettingsSave';
 const fs = require('fs');
 const slash = require('slash');
 const path = require('path');
-const { dir, log, logOk, logWarn, logError} = require('../../extras/console')(modulename);
+const { dir, log, logOk, logWarn, logError } = require('../../extras/console')(modulename);
 const helpers = require('../../extras/helpers');
 
 //Helper functions
@@ -84,9 +84,6 @@ function handleGlobal(ctx) {
     newConfig.publicIP = cfg.publicIP;
     newConfig.language = cfg.language;
     let saveStatus = globals.configVault.saveProfile('global', newConfig);
-
-    //FIXME: until there is an advanced tab or something
-    GlobalData.verbose = cfg.verbose;
 
     //Sending output
     if(saveStatus){
