@@ -4,7 +4,7 @@ const fs = require('fs-extra');
 const path = require('path');
 const sqrl = require("squirrelly");
 const helpers = require('../../extras/helpers');
-const { dir, log, logOk, logWarn, logError} = require('../../extras/console')(modulename);
+const { dir, log, logOk, logWarn, logError } = require('../../extras/console')(modulename);
 
 //Helper functions
 const isUndefined = (x) => { return (typeof x === 'undefined') };
@@ -61,6 +61,7 @@ async function renderMasterView(view, reqSess, data){
     data.profilePicture = (reqSess && reqSess.auth && reqSess.auth.picture)? reqSess.auth.picture : 'img/default_avatar.png';
     data.isTempPassword = (reqSess && reqSess.auth && reqSess.auth.isTempPassword);
     data.isLinux = (GlobalData.osType == 'linux');
+    data.showAdvanced = (process.env.APP_ENV !== 'webpack' || GlobalData.verbose);
 
     let out;
     try {

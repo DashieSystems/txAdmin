@@ -1,7 +1,7 @@
 //Requires
 const modulename = 'WebServer:SettingsGet';
 const clone = require('clone');
-const { dir, log, logOk, logWarn, logError} = require('../../extras/console')(modulename);
+const { dir, log, logOk, logWarn, logError } = require('../../extras/console')(modulename);
 
 
 /**
@@ -24,9 +24,6 @@ module.exports = async function SettingsGet(ctx) {
         serverTimezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
         activeTab: 'global'
     }
-
-    //FIXME: until there is an advanced tab or something
-    renderData.global.verbose = (GlobalData.verbose)? 'checked' : '';
 
     return ctx.utils.render('settings', renderData);
 };

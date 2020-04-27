@@ -1,14 +1,14 @@
 //Requires
 const modulename = 'WebServer:updateChecker';
 const axios = require("axios");
-const { dir, log, logOk, logWarn, logError} = require('../extras/console')(modulename);
+const { dir, log, logOk, logWarn, logError } = require('../extras/console')(modulename);
 
 //Helpers
 const now = () => { return Math.round(Date.now() / 1000) };
 const anyUndefined = (...args) => { return [...args].some(x => (typeof x === 'undefined')) };
 
 /*
-    NOTE:
+    TODO:
     Create an page with the changelog, that queries for the following endpoint and caches it for 15 minutes:
         https://changelogs-live.fivem.net/api/changelog/versions/2385/2375?tag=server
     Maybe even grab the data from commits:
