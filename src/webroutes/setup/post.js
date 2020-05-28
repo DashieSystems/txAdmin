@@ -3,7 +3,7 @@ const modulename = 'WebServer:SetupPost';
 const fs = require('fs');
 const slash = require('slash');
 const path = require('path');
-const { dir, log, logOk, logWarn, logError} = require('../../extras/console')(modulename);
+const { dir, log, logOk, logWarn, logError } = require('../../extras/console')(modulename);
 const helpers = require('../../extras/helpers');
 
 //Helper functions
@@ -204,12 +204,6 @@ async function handleSave(ctx) {
         return ctx.utils.error(400, 'Invalid Request - missing parameters');
     }
 
-    //HACK
-    // ctx.request.body.name = 'Testerinoo';
-    // ctx.request.body.dataFolder = 'e:/fivem/base_ah';
-    // ctx.request.body.cfgFile = 'server.cfg';
-
-    // return ctx.send({success: false, message: 'sdfsdfsdfsdf'});
     //Prepare body input
     let cfg = {
         name: ctx.request.body.name.trim(),
@@ -246,7 +240,6 @@ async function handleSave(ctx) {
     //Preparing & saving config
     let newGlobalConfig = globals.configVault.getScopedStructure('global');
     newGlobalConfig.serverName = cfg.name;
-    newGlobalConfig.publicIP = 'change-me';
     let saveGlobalStatus = globals.configVault.saveProfile('global', newGlobalConfig);
 
     let newFXRunnerConfig = globals.configVault.getScopedStructure('fxRunner');

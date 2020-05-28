@@ -1,7 +1,7 @@
 //Requires
 const modulename = 'WebServer:SettingsGet';
 const clone = require('clone');
-const { dir, log, logOk, logWarn, logError} = require('../../extras/console')(modulename);
+const { dir, log, logOk, logWarn, logError } = require('../../extras/console')(modulename);
 
 
 /**
@@ -20,13 +20,10 @@ module.exports = async function SettingsGet(ctx) {
         fxserver: cleanRenderData(globals.configVault.getScopedStructure('fxRunner')),
         monitor: cleanRenderData(globals.configVault.getScopedStructure('monitor')),
         discord: cleanRenderData(globals.configVault.getScopedStructure('discordBot')),
-        disableWrite: (ctx.utils.checkPermission('settings.write', modulename))? '' : 'disabled',
+        readOnly: !ctx.utils.checkPermission('settings.write', modulename, false),
         serverTimezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
         activeTab: 'global'
     }
-
-    //FIXME: until there is an advanced tab or something
-    renderData.global.verbose = (GlobalData.verbose)? 'checked' : '';
 
     return ctx.utils.render('settings', renderData);
 };

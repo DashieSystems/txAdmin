@@ -3,7 +3,7 @@ const modulename = 'WebServer:AdminManagerActions';
 const { customAlphabet } = require('nanoid');
 const dict51 = require('nanoid-dictionary/nolookalikes');
 const nanoid = customAlphabet(dict51, 20);
-const { dir, log, logOk, logWarn, logError} = require('../../extras/console')(modulename);
+const { dir, log, logOk, logWarn, logError } = require('../../extras/console')(modulename);
 
 //Helper functions
 const isUndefined = (x) => { return (typeof x === 'undefined') };
@@ -75,10 +75,10 @@ async function handleAdd(ctx) {
     if(!/^[a-zA-Z0-9]{6,16}$/.test(name)){
         return ctx.send({type: 'danger', message: "Invalid username"});
     }
-    if(citizenfxID.length && !/^\w{4,20}$/.test(citizenfxID)){
+    if(citizenfxID.length && !/^\w{3,20}$/.test(citizenfxID)){
         return ctx.send({type: 'danger', message: "Invalid CitizenFX ID"});
     }
-    if(discordID.length && !/^\d+$/.test(discordID)){
+    if(discordID.length && !/^\d{7,20}$/.test(discordID)){
         return ctx.send({type: 'danger', message: "Invalid Discord ID"});
     }
 
@@ -120,10 +120,10 @@ async function handleEdit(ctx) {
     if(permissions.includes('all_permissions')) permissions = ['all_permissions'];
 
     //Validate fields
-    if(citizenfxID.length && !/^\w{4,20}$/.test(citizenfxID)){
+    if(citizenfxID.length && !/^\w{3,20}$/.test(citizenfxID)){
         return ctx.send({type: 'danger', message: "Invalid CitizenFX ID"});
     }
-    if(discordID.length && !/^\d+$/.test(discordID)){
+    if(discordID.length && !/^\d{7,20}$/.test(discordID)){
         return ctx.send({type: 'danger', message: "Invalid Discord ID"});
     }
 

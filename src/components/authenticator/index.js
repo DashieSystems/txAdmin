@@ -1,9 +1,9 @@
 //Requires
 const modulename = 'Authenticator';
-const ac = require('ansi-colors');
+const chalk = require('chalk');
 const fs = require('fs-extra');
 const clone = require('clone');
-const { dir, log, logOk, logWarn, logError} = require('../../extras/console')(modulename);
+const { dir, log, logOk, logWarn, logError } = require('../../extras/console')(modulename);
 const CitizenFXProvider = require('./providers/CitizenFX');
 
 
@@ -16,10 +16,11 @@ module.exports = class Authenticator {
         this.registeredPermissions = [
             "all_permissions",
             "manage.admins",
-            "commands.custom",
+            "commands.ban",
             "commands.kick",
             "commands.message",
             "commands.resources",
+            "commands.warn",
             "console.view",
             "console.write",
             "control.server",
@@ -53,7 +54,7 @@ module.exports = class Authenticator {
             let sep = `=`.repeat(42);
             log(sep);
             log('==> Admins file not found.');
-            log(`==> PIN to add a master account: ` + ac.inverse(' ' + this.addMasterPin + ' '));
+            log(`==> PIN to add a master account: ` + chalk.inverse(' ' + this.addMasterPin + ' '));
             log(sep);
             this.admins = false;
         }else{
@@ -349,7 +350,7 @@ module.exports = class Authenticator {
             if(typeof x.providers !== 'object') return true;
             let providersTest = Object.keys(x.providers).some((y) => {
                 if(!Object.keys(this.providers).includes(y)) return true;
-                if(typeof x.providers[y].id !== 'string' || x.providers[y].id.length < 4) return true;
+                if(typeof x.providers[y].id !== 'string' || x.providers[y].id.length < 3) return true;
                 if(typeof x.providers[y].data !== 'object') return true;
             });
             if(providersTest) return true;
@@ -370,7 +371,7 @@ module.exports = class Authenticator {
         }
 
         this.admins = jsonData;
-        if(GlobalData.verbose) log(`Admins file loaded. Found: ${this.admins.length}`);
+        // if(GlobalData.verbose) log(`Admins file loaded. Found: ${this.admins.length}`);
         return true;
     }
 

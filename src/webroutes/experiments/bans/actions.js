@@ -1,6 +1,6 @@
 //Requires
 const modulename = 'WebServer:ExperimentsBansActions';
-const { dir, log, logOk, logWarn, logError} = require('../../../extras/console')(modulename);
+const { dir, log, logOk, logWarn, logError } = require('../../../extras/console')(modulename);
 
 //Helper functions
 const escape = (x) => {return x.replace(/\"/g, '\\"');};
@@ -146,7 +146,7 @@ async function handleBan(ctx) {
     }
 
     //Kicking player
-    let cmd = `txaKickIdentifier "${escape(identifier)}" "${escape(reason)}"`
+    let cmd = `txaDropIdentifier "${escape(identifier)}" "${escape(reason)}"`
     await globals.fxRunner.srvCmdBuffer(cmd);
 
     let banData = {

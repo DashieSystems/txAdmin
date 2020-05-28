@@ -1,9 +1,8 @@
 //Requires
 const modulename = 'DiscordBot';
-const fs = require('fs-extra');
 const Discord = require('discord.js');
 const humanizeDuration = require('humanize-duration');
-const { dir, log, logOk, logWarn, logError} = require('../extras/console')(modulename);
+const { dir, log, logOk, logWarn, logError } = require('../extras/console')(modulename);
 
 
 module.exports = class DiscordBot {
@@ -11,15 +10,10 @@ module.exports = class DiscordBot {
         this.config = config;
         this.client = null;
         this.cronFunc = null;
-        this.messages = [];
         this.spamLimitCache = {}
         if(!this.config.enabled){
             logOk('Disabled by the config file.');
         }else{
-            this.refreshStaticCommands();
-            this.cronFunc = setInterval(() => {
-                this.refreshStaticCommands();
-            }, this.config.refreshInterval);
             this.startBot();
         }
     }
@@ -39,9 +33,6 @@ module.exports = class DiscordBot {
         }
         if(this.config.enabled){
             this.startBot();
-            this.cronFunc = setInterval(() => {
-                this.refreshStaticCommands();
-            }, this.config.refreshInterval);
         }
     }//Final refreshConfig()
 
@@ -108,7 +99,7 @@ module.exports = class DiscordBot {
     //================================================================
     async handleMessage(message){
         if(message.author.bot) return;
-        let out = '';
+        let out = false;
 
         //Checking if message is a command
         if(message.content.startsWith(this.config.statusCommand)){
@@ -119,25 +110,19 @@ module.exports = class DiscordBot {
             }
             this.spamLimitRegister(this.config.statusCommand, message.channel.id);
 
-            //Prepare message's data
-            let monitorStatus = globals.monitor.currentStatus || '??';
-            let color, titleKey, players;
-            if(monitorStatus == 'ONLINE' || monitorStatus == 'PARTIAL'){
-                color = 0x74EE15;
-                titleKey = 'discord.status_online';
-                players = (Array.isArray(globals.monitor.tmpPlayers))? globals.monitor.tmpPlayers.length : '--';
+            //Prepare message's RichEmbed + template variables
+            let replaces = {};
+            let cardColor, cardTitle;
+            if(globals.monitor.currentStatus == 'ONLINE' || globals.monitor.currentStatus == 'PARTIAL'){
+                cardColor = 0x74EE15;
+                cardTitle = globals.translator.t('discord.status_online', {servername: globals.config.serverName});
+                replaces.players = (Array.isArray(globals.playerController.activePlayers))? globals.playerController.activePlayers.length : '--';
+                replaces.port = (globals.config.forceFXServerPort)? globals.config.forceFXServerPort : globals.fxRunner.fxServerPort;
             }else{
-                color = 0xF000FF;
-                titleKey = 'discord.status_offline';
-                players = '--';
-            }
-
-            let title = globals.translator.t(titleKey, {servername: globals.config.serverName});
-            let desc = '';
-            if(globals.config.forceFXServerPort || globals.fxRunner.fxServerPort){
-                let port = (globals.config.forceFXServerPort)? globals.config.forceFXServerPort : globals.fxRunner.fxServerPort;
-                desc += `**IP:** ${globals.config.publicIP}:${port}\n`;
-                desc += `**Players:** ${players}\n`;
+                cardColor = 0xF000FF;
+                cardTitle = globals.translator.t('discord.status_offline', {servername: globals.config.serverName});
+                replaces.players = '--';
+                replaces.port = '--';
             }
             let humanizeOptions = {
                 language: globals.translator.t('$meta.humanizer_language'),
@@ -145,14 +130,20 @@ module.exports = class DiscordBot {
                 units: ['d', 'h', 'm', 's'],
                 fallbacks: ['en']
             }
-            let uptime = humanizeDuration(globals.fxRunner.getUptime()*1000, humanizeOptions);
-            desc += `**Uptime:** ${uptime} \n`;
+            replaces.uptime = humanizeDuration(globals.fxRunner.getUptime()*1000, humanizeOptions);
+            
+            //Replacing text
+            let desc = this.config.statusMessage;
+            Object.entries(replaces).forEach(([key, value]) => {
+                desc = desc.replace(`<${key}>`, value);
+            });
 
             //Prepare object
             out = new Discord.RichEmbed();
-            out.setTitle(title);
-            out.setColor(color);
+            out.setTitle(cardTitle);
+            out.setColor(cardColor);
             out.setDescription(desc);
+            out.setFooter(`Powered by txAdmin v${GlobalData.txAdminVersion}.`);
 
         }else if(message.content.startsWith('/txadmin')){
             //Prepare object
@@ -160,23 +151,10 @@ module.exports = class DiscordBot {
             out.setTitle(`${globals.config.serverName} uses txAdmin v${GlobalData.txAdminVersion}!`);
             out.setColor(0x4DEEEA);
             out.setDescription(`Checkout the project:\n GitHub: https://github.com/tabarra/txAdmin\n Discord: https://discord.gg/f3TsfvD`);
-
-        }else{
-            //Finds the command
-            let cmd = this.messages.find((staticMessage) => {return message.content.startsWith(staticMessage.trigger)});
-            if(!cmd) return;
-
-            //Check spam limiter
-            if(!this.spamLimitChecker(cmd.trigger, message.channel.id)){
-                if(GlobalData.verbose) log(`Spam prevented for command "${cmd.trigger}" in channel "${message.channel.name}".`);
-                return;
-            }
-            this.spamLimitRegister(cmd.trigger, message.channel.id);
-
-            //Sets static message
-            out = cmd.message;
-
         }
+
+        //If its not a recognized command
+        if(!out) return;
 
         //Sending message
         try {
@@ -189,65 +167,6 @@ module.exports = class DiscordBot {
         } catch (error) {
             logError(`Failed to send message with error: ${error.message}`);
         }
-        /*
-            message.content
-            message.author.username
-            message.author.id
-            message.guild.name //servername
-            message.channel.name
-
-            message.reply('pong'); //<<reply directly to the user mentioning him
-            message.channel.send('Pong.');
-        */
-    }
-
-
-    //================================================================
-    async refreshStaticCommands(){
-        //NOTE: since in the future this probably will be via database, shipping v2.0.0 with this as file is a bad idea
-        //      for now I will just disable this feature. To be reevaluated in the future. 
-        this.messages = [];
-        return;
-
-        let raw = null;
-        let jsonData = null;
-
-        try {
-            raw = await fs.readFile(this.config.messagesFilePath, 'utf8');
-        } catch (error) {
-            logError('Unable to load discord messages. (cannot read file, please read the documentation)');
-            logError(error.message);
-            this.messages = [];
-            return;
-        }
-
-        try {
-            jsonData = JSON.parse(raw);
-        } catch (error) {
-            logError('Unable to load discord messages. (json parse error, please read the documentation)');
-            this.messages = [];
-            return;
-        }
-
-        if(!Array.isArray(jsonData)){
-            logError('Unable to load discord messages. (not an array, please read the documentation)');
-            this.messages = [];
-            return;
-        }
-
-        let structureIntegrityTest = jsonData.some((x) =>{
-            if(typeof x.trigger === 'undefined' || typeof x.trigger !== 'string') return true;
-            if(typeof x.message === 'undefined' || typeof x.message !== 'string') return true;
-            return false;
-        });
-        if(structureIntegrityTest){
-            logError('Unable to load discord messages. (invalid data in the messages file, please read the documentation)');
-            this.messages = [];
-            return;
-        }
-
-        this.messages = jsonData;
-        if(GlobalData.verbose) log(`Discord messages file loaded. Found: ${this.messages.length}`);
     }
 
 
@@ -277,7 +196,7 @@ module.exports = class DiscordBot {
 
     //================================================================
     /**
-     * TEST: fetch user data
+     * DEBUG: fetch user data
      * @param {string} uid
      */
     // async testFetchUser(uid){

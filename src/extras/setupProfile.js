@@ -1,10 +1,10 @@
 //Requires
 const modulename = 'SetupProfile';
-const ac = require('ansi-colors');
 const fs = require('fs-extra');
 const path = require('path');
+const chalk = require('chalk');
 const slash = require('slash');
-const { dir, log, logOk, logWarn, logError} = require('./console')(modulename);
+const { dir, log, logOk, logWarn, logError } = require('./console')(modulename);
 
 //Helpers
 const printDivider = () => { log('='.repeat(57)) };
@@ -14,7 +14,6 @@ const cleanPath = (x) => { return slash(path.normalize(x)) };
 let defaultConfig = {
     global: {
         verbose: false,
-        publicIP: null,
         serverName: null,
         language: "en",
         forceFXServerPort: null
@@ -37,12 +36,10 @@ let defaultConfig = {
         enabled: false,
         token: null,
         announceChannel: null,
-        statusCommand: '/status'
     },
     fxRunner: {
         serverDataPath: null,
         cfgPath: null,
-        setPriority: false,
         onesync: false,
         autostart: false,
         quiet: false
@@ -85,7 +82,7 @@ module.exports = (osType, fxServerPath, fxServerVersion, serverProfile, profileP
             let batFolder = path.resolve(fxServerPath, '..');
             let batPath  = path.join(batFolder, `start_${fxServerVersion}_${serverProfile}.bat`);
             fs.writeFileSync(batPath, batData);
-            logOk(`You can use ${ac.inverse(batPath)} to start this profile.`);
+            logOk(`You can use ${chalk.inverse(batPath)} to start this profile.`);
         } catch (error) {
             logWarn(`Failed to create 'start_${fxServerVersion}_${serverProfile}.bat' with error: ${error.message}`);
         }

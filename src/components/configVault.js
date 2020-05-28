@@ -2,7 +2,7 @@
 const modulename = 'ConfigVault';
 const fs = require('fs');
 const clone = require('clone');
-const { dir, log, logOk, logWarn, logError} = require('../extras/console')(modulename);
+const { dir, log, logOk, logWarn, logError } = require('../extras/console')(modulename);
 
 //Helper functions
 const isUndefined = (x) => { return (typeof x === 'undefined') };
@@ -94,7 +94,6 @@ module.exports = class ConfigVault {
 
         try {
             out.global = {
-                publicIP:  toDefault(cfg.global.publicIP, null),
                 serverName:  toDefault(cfg.global.serverName, null),
                 language:  toDefault(cfg.global.language, null),
                 forceFXServerPort:  toDefault(cfg.global.forceFXServerPort, null), //not in template
@@ -127,9 +126,8 @@ module.exports = class ConfigVault {
                 enabled: toDefault(cfg.discordBot.enabled, null),
                 token:  toDefault(cfg.discordBot.token, null),
                 announceChannel:  toDefault(cfg.discordBot.announceChannel, null),
-                messagesFilePath: toDefault(cfg.discordBot.messagesFilePath, null), //not in template
-                refreshInterval: toDefault(cfg.discordBot.refreshInterval, null), //not in template
-                statusCommand: toDefault(cfg.discordBot.statusCommand, null),
+                statusCommand: toDefault(cfg.discordBot.statusCommand, '/status'),
+                statusMessage: toDefault(cfg.discordBot.statusMessage, '**IP:** \`change-me:<port>\`\n**Players:** <players>\n**Uptime:** <uptime>'),
                 commandCooldown: toDefault(cfg.discordBot.commandCooldown, null), //not in template
             };
             out.fxRunner = {
@@ -137,7 +135,6 @@ module.exports = class ConfigVault {
                 cfgPath: toDefault(cfg.fxRunner.cfgPath, null),
                 commandLine: toDefault(cfg.fxRunner.commandLine, null),
                 logPath: toDefault(cfg.fxRunner.logPath, null), //not in template
-                setPriority: toDefault(cfg.fxRunner.setPriority, null),
                 onesync: toDefault(cfg.fxRunner.onesync, null),
                 autostart: toDefault(cfg.fxRunner.autostart, null),
                 autostartDelay: toDefault(cfg.fxRunner.autostartDelay, null), //not in template
@@ -163,7 +160,6 @@ module.exports = class ConfigVault {
         //NOTE: the bool trick in fxRunner.autostart won't work if we want the default to be true
         try {
             //Global
-            cfg.global.publicIP = cfg.global.publicIP || "change-me";
             cfg.global.serverName = cfg.global.serverName || "change-me";
             cfg.global.language = cfg.global.language || "en"; //TODO: move to GlobalData
 
@@ -175,7 +171,7 @@ module.exports = class ConfigVault {
             cfg.monitor.restarterSchedule = cfg.monitor.restarterSchedule || [];
             cfg.monitor.cooldown = parseInt(cfg.monitor.cooldown) || 60; //not in template
             cfg.monitor.heartBeat.failThreshold = parseInt(cfg.monitor.heartBeat.failThreshold) || 10;
-            cfg.monitor.heartBeat.failLimit = parseInt(cfg.monitor.heartBeat.failLimit) || 30;
+            cfg.monitor.heartBeat.failLimit = parseInt(cfg.monitor.heartBeat.failLimit) || 45;
             cfg.monitor.healthCheck.failThreshold = parseInt(cfg.monitor.healthCheck.failThreshold) || 10;
             cfg.monitor.healthCheck.failLimit = parseInt(cfg.monitor.healthCheck.failLimit) || 300;
 
@@ -189,14 +185,12 @@ module.exports = class ConfigVault {
 
             //DiscordBot
             cfg.discordBot.enabled = (cfg.discordBot.enabled === 'true' || cfg.discordBot.enabled === true);
-            cfg.discordBot.messagesFilePath = cfg.discordBot.messagesFilePath || `${this.serverProfilePath}/messages.json`; //not in template
-            cfg.discordBot.refreshInterval = parseInt(cfg.discordBot.refreshInterval) || 15000; //not in template
-            cfg.discordBot.statusCommand = cfg.discordBot.statusCommand || "/status";
+            cfg.discordBot.statusCommand = cfg.discordBot.statusCommand || '/status';
+            cfg.discordBot.statusMessage = cfg.discordBot.statusMessage || '**IP:** \`change-me:<port>\`\n**Players:** <players>\n**Uptime:** <uptime>';
             cfg.discordBot.commandCooldown = parseInt(cfg.discordBot.commandCooldown) || 30; //not in template
 
             //FXRunner
             cfg.fxRunner.logPath = cfg.fxRunner.logPath || `${this.serverProfilePath}/logs/fxserver.log`; //not in template
-            cfg.fxRunner.setPriority = cfg.fxRunner.setPriority || "NORMAL";
             cfg.fxRunner.onesync = (cfg.fxRunner.onesync === 'true' || cfg.fxRunner.onesync === true);
             cfg.fxRunner.autostart = (cfg.fxRunner.autostart === 'true' || cfg.fxRunner.autostart === true);
             cfg.fxRunner.autostartDelay = parseInt(cfg.fxRunner.autostartDelay) || 2; //not in template
@@ -225,16 +219,6 @@ module.exports = class ConfigVault {
             if(!fs.existsSync(logsPath)){
                 fs.mkdirSync(logsPath);
             }
-
-            // let messagesPath = `${this.serverProfilePath}/messages.json`;
-            // if(!fs.existsSync(messagesPath)){
-            //     fs.writeFileSync(messagesPath, '[]');
-            // }
-
-            // let commandsPath = `${this.serverProfilePath}/commands.json`;
-            // if(!fs.existsSync(commandsPath)){
-            //     fs.writeFileSync(commandsPath, '[]');
-            // }
         } catch (error) {
             logError(`Failed to set up folder structure in '${this.serverProfilePath}/' with error: ${error.message}`);
             process.exit();

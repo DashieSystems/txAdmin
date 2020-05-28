@@ -3,7 +3,7 @@ const modulename = 'WebServer:Router';
 const Router = require('@koa/router');
 const KoaRateLimit = require('koa-ratelimit');
 
-const { dir, log, logOk, logWarn, logError} = require('../../extras/console')(modulename);
+const { dir, log, logOk, logWarn, logError } = require('../../extras/console')(modulename);
 const webRoutes = require('../../webroutes');
 const {requestAuth} = require('./requestAuthenticator');
 
@@ -50,22 +50,24 @@ module.exports = router = (config) =>{
     router.get('/cfgEditor', requestAuth('web'), webRoutes.cfgEditor.get);
     router.post('/cfgEditor/save', requestAuth('api'), webRoutes.cfgEditor.save);
 
-    //Experiments
-    router.get('/experiments/bans', requestAuth('web'), webRoutes.experiments.bans.get);
-    router.all('/experiments/bans/actions/:action', requestAuth('web'), webRoutes.experiments.bans.actions);
-
     //Control routes
     router.get('/console', requestAuth('web'), webRoutes.liveConsole);
     router.post('/intercom/:scope', requestAuth('intercom'), webRoutes.intercom);
 
     //Diagnostic routes
     router.get('/diagnostics', requestAuth('web'), webRoutes.diagnostics);
+    router.get('/advanced', requestAuth('web'), webRoutes.advanced.get);
+    router.post('/advanced', requestAuth('api'), webRoutes.advanced.actions);
 
     //Data routes
     router.get('/txAdminLog', requestAuth('web'), webRoutes.txAdminLog);
     router.get('/serverLog', requestAuth('web'), webRoutes.serverLog);
     router.get('/status', requestAuth('api'), webRoutes.status);
-    router.get('/getPlayerData/:id', requestAuth('api'), webRoutes.getPlayerData);
+
+    //Player routes
+    router.get('/player/list', requestAuth('web'), webRoutes.player.list);
+    router.get('/player/:license', requestAuth('api'), webRoutes.player.modal);
+    router.post('/player/:action', requestAuth('api'), webRoutes.player.actions);
 
     //Index & generic
     router.get('/resources', requestAuth('web'), webRoutes.resources);

@@ -1,8 +1,7 @@
 //Requires
 const modulename = 'Monitor';
 const axios = require("axios");
-const bigInt = require("big-integer");
-const { dir, log, logOk, logWarn, logError} = require('../../extras/console')(modulename);
+const { dir, log, logOk, logWarn, logError } = require('../../extras/console')(modulename);
 const helpers = require('../../extras/helpers');
 const HostCPUStatus = require('./hostCPUStatus');
 const TimeSeries = require('./timeSeries');
@@ -34,11 +33,6 @@ module.exports = class Monitor {
         }
         this.resetMonitorStats();
         this.buildSchedule();
-
-        //Running playerlist generator
-        if(process.env.APP_ENV !== 'webpack' && false) {
-            require('./genPlayers.js');
-        }
 
         //Cron functions
         setInterval(() => {
@@ -188,12 +182,14 @@ module.exports = class Monitor {
         this.globalCounters.hitches = [];
 
         this.currentStatus = 'OFFLINE' // options: OFFLINE, ONLINE, PARTIAL
-        this.tmpPlayers = []; //FIXME: temporary
         this.lastSuccessfulHealthCheck = null; //to see if its above limit
         this.lastStatusWarningMessage = null; //to prevent spamming 
         this.lastSuccessfulHeartBeat = null; //to see if its above limit
         this.lastHealthCheckErrorMessage = null; //to print warning
         this.healthCheckRestartWarningIssued = false; //to prevent spamming 
+
+        //to reset active player list (if module is already loaded)
+        if(globals.playerController) globals.playerController.processHeartBeat([]); 
     }
 
 
@@ -214,9 +210,6 @@ module.exports = class Monitor {
 
         //Make request
         try {
-            //FIXME: remove this test
-            if(globals.disableReply) throw new Error('globals.disableReply test');
-
             const res = await axios(requestOptions);
             if(typeof res.data !== 'object') throw new Error("FXServer's dynamic endpoint didn't return a JSON object.");
             if(isUndefined(res.data.hostname) || isUndefined(res.data.clients)) throw new Error("FXServer's dynamic endpoint didn't return complete data.");
@@ -253,15 +246,6 @@ module.exports = class Monitor {
         let heartBeatFailed = (elapsedHeartBeat > this.config.heartBeat.failThreshold);
         let processUptime = globals.fxRunner.getUptime();
 
-        //Debug only
-        // dir({
-        //     elapsedHealthCheck,
-        //     healthCheckFailed,
-        //     processUptime,
-        //     elapsedHeartBeat,
-        //     heartBeatFailed,
-        // })
-
         //Check if its online and return
         if(
             this.lastSuccessfulHealthCheck && !healthCheckFailed &&
@@ -274,7 +258,6 @@ module.exports = class Monitor {
         //Now to the (un)fun part: if the status != healthy
         this.currentStatus = (healthCheckFailed && heartBeatFailed)? 'OFFLINE' : 'PARTIAL';
 
-        //FIXME: The fired heartbeat could take a lot of time to appear, find a way to not restart the server if that happens
         //Check if still in cooldown
         if(processUptime < this.config.cooldown){
             if(GlobalData.verbose && processUptime > 5 && currTimestamp - this.lastStatusWarningMessage > 10){
@@ -291,7 +274,7 @@ module.exports = class Monitor {
         ){
             let msg = (healthCheckFailed)
                         ? `(HB:${cleanET(elapsedHeartBeat)}|HC:${cleanET(elapsedHealthCheck)}) FXServer is not responding. (${this.lastHealthCheckErrorMessage})` 
-                        : `(HB:${cleanET(elapsedHeartBeat)}|HC:${cleanET(elapsedHealthCheck)}) FXServer is not responding. (probably crashed)`; 
+                        : `(HB:${cleanET(elapsedHeartBeat)}|HC:${cleanET(elapsedHealthCheck)}) FXServer is not responding. (HB Failed)`; 
             this.lastStatusWarningMessage = now();
             logWarn(msg);
         }
@@ -331,7 +314,7 @@ module.exports = class Monitor {
             elapsedHealthCheck < this.config.healthCheck.failLimit
         ){
             let msg = `Still waiting for the first HeartBeat. Process started ${processUptime}s ago.`;
-            if(GlobalData.verbose && processUptime % 15 == 0) logWarn(msg);
+            if(processUptime % 15 == 0) logWarn(msg);
             return;
         }
 
@@ -360,26 +343,22 @@ module.exports = class Monitor {
 
     //================================================================
     handleHeartBeat(postData){
-        //NOTE: bypass when using the debug player generator
-        if(Array.isArray(globals.databus.debugPlayerlist)){
-            this.lastSuccessfulHeartBeat = now();
-            this.timeSeries.add(globals.databus.debugPlayerlist.length);
-            this.tmpPlayers = globals.databus.debugPlayerlist;
-            globals.playerController.processHeartBeat(this.tmpPlayers);
+        //Sanity Check
+        if(!Array.isArray(postData.players)){
+            if(GlobalData.verbose) logWarn(`Received an invalid HeartBeat.`);
             return;
         }
 
-        //Sanity check
-        if(!Array.isArray(postData.players)) return;
-
-        //Send data to the player database component
-        this.lastSuccessfulHeartBeat = now();
-        this.timeSeries.add(postData.players.length);
-        //FIXME: temporary variable
-        this.tmpPlayers = postData.players.map(player => {
+        //Cleaning playerlist
+        let playerList = postData.players.map(player => {
             player.id = parseInt(player.id);
-            return player
+            return player;
         });
+
+        //The rest...
+        this.lastSuccessfulHeartBeat = now();
+        this.timeSeries.add(playerList.length);
+        globals.playerController.processHeartBeat(playerList);
     }
 
 } //Fim Monitor()

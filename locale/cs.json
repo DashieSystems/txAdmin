@@ -21,5 +21,10 @@
     "discord": {
         "status_online": "**%{servername}** je nyní **Online**!",
         "status_offline": "**%{servername}** je nyní **Offline**!"
+    },
+    "nui_warning": {
+        "title": "VAROVÁNÍ",
+        "warned_by": "Varován od:",
+        "instruction": "Drž [MEZERNÍK] po dobu 10 sekund pro zavření této zprávy."
     }
 }

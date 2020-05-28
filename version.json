@@ -1,5 +1,5 @@
 {
-    "version": "2.4.0",
+    "version": "2.4.2",
     "changelog": "Deprecated Message. Please Update to v2.",
     "allVersions": [
         {
@@ -139,10 +139,6 @@
             "changelog": "Fixed console colors. Added custom command logging. Added explosion types to the server log. Added more information to the diagnostics page. Improved verbosity. Added Finnish, Turkish and Latvian languages."
         },
         {
-            "version": "1.15.1",
-            "changelog": "LEGACY: added support for servers without run.cmd"
-        },
-        {
             "version": "2.0.0",
             "changelog": "Integrated with FiveM! New Responsive Interface! New Auth system. Migrated from Express to Koa. Got rid of setup, and admin-add scripts. Changed the `data` folder location. And many many more tweaks and improvements!"
         },
@@ -173,6 +169,14 @@
         {
             "version": "2.4.0",
             "changelog": "Added FXServer update checker, improved some error messages, increased heartbeat cooldown limit for low-spec machines and update packages."
+        },
+        {
+            "version": "2.4.1",
+            "changelog": "Minor fixes to the FXServer update checker."
+        },
+        {
+            "version": "2.4.2",
+            "changelog": "Added customizable /status messages. Security Updates: fixed escaping issues, restricted more the settings.view permission, upgraded packages."
         }
     ]
 }

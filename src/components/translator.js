@@ -2,7 +2,7 @@
 const modulename = 'Translator';
 const fs = require('fs');
 const Polyglot = require('node-polyglot');
-const { dir, log, logOk, logWarn, logError} = require('../extras/console')(modulename);
+const { dir, log, logOk, logWarn, logError } = require('../extras/console')(modulename);
 
 const languages = {
     ar: require('../../locale/ar.json'),
@@ -18,11 +18,13 @@ const languages = {
     lt: require('../../locale/lt.json'),
     lv: require('../../locale/lv.json'),
     nl: require('../../locale/nl.json'),
+    no: require('../../locale/no.json'),
     pl: require('../../locale/pl.json'),
     pt_BR: require('../../locale/pt_BR.json'),
     pt_PT: require('../../locale/pt_PT.json'),
     ro: require('../../locale/ro.json'),
     ru: require('../../locale/ru.json'),
+    sv: require('../../locale/sv.json'),
     th: require('../../locale/th.json'),
     tr: require('../../locale/tr.json'),
     zh: require('../../locale/zh.json'),
@@ -89,22 +91,27 @@ module.exports = class Translator {
     //================================================================
     /**
      * Loads a language file or throws Error.
-     * NOTE: hash "protection" removed since the main distribution method will be webpack
-     * 
      * @param {string} lang
      */
     getLanguagePhrases(lang){
-        //If its a default language
-        if(typeof languages[lang] === 'object') return languages[lang];
-
+        //If its a known language
+        if(typeof languages[lang] === 'object'){
+            return languages[lang];
+        
         //If its a custom language
-        try {
-            return JSON.parse(fs.readFileSync(
-                `${GlobalData.dataPath}/locale/${lang}.json`,
-                'utf8'
-            ));
-        } catch (error) {
-            throw new Error(`Failed to load 'locale/${lang}.json'. (${error.message})`);
+        }else if(lang === 'custom'){
+            try {
+                return JSON.parse(fs.readFileSync(
+                    `${GlobalData.dataPath}/locale/custom.json`,
+                    'utf8'
+                ));
+            } catch (error) {
+                throw new Error(`Failed to load '${GlobalData.dataPath}/locale/custom.json'. (${error.message})`);
+            }
+
+        //If its an invalid language
+        }else{
+            throw new Error(`Language not found.`);
         }
     }
 

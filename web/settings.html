@@ -45,25 +45,10 @@
                             </label>
                             <div class="col-sm-9">
                                 <input type="text" class="form-control" id="frmGlobal-serverName"
-                                    value="{{global.serverName|undef}}" maxlength="24" placeholder="server name" {{disableWrite}}>
+                                    value="{{global.serverName|undef}}" maxlength="24" placeholder="server name" {{readOnly|isDisabled}}>
                                 <span class="form-text text-muted">
                                     A <strong>short</strong> server name to be used in txAdmin interface and Chat/Discord messages.
                                 </span>
-                            </div>
-                        </div>
-
-                        <div class="form-group row">
-                            <label for="frmGlobal-publicIP" class="col-sm-3 col-form-label">
-                                Public IP
-                                <span class="text-danger">*</span>
-                            </label>
-                            <div class="col-sm-9">
-                                <input type="text" class="form-control" id="frmGlobal-publicIP"
-                                    value="{{global.publicIP|undef}}" maxlength="32" placeholder="123.123.123.123" {{disableWrite}}>
-                                    <span class="form-text text-muted">
-                                        You can set this to be your public IP or a domain name. <br>
-                                        This will only be used for discord messages.
-                                    </span>
                             </div>
                         </div>
 
@@ -72,7 +57,7 @@
                                 Language
                             </label>
                             <div class="col-sm-9">
-                                <select class="form-control" id="frmGlobal-language" {{disableWrite}}>
+                                <select class="form-control" id="frmGlobal-language" {{readOnly|isDisabled}}>
                                     <option value="en" {{global.language=='en'|isSelected}}>English (default)</option>
 
                                     <option value="ar" {{global.language=='ar'|isSelected}}>Arabic</option>
@@ -87,11 +72,13 @@
                                     <option value="lt" {{global.language=='lt'|isSelected}}>Lithuanian</option>
                                     <option value="lv" {{global.language=='lv'|isSelected}}>Latvian</option>
                                     <option value="nl" {{global.language=='nl'|isSelected}}>Dutch</option>
+                                    <option value="no" {{global.language=='no'|isSelected}}>Norwegian</option>
                                     <option value="pl" {{global.language=='pl'|isSelected}}>Polish</option>
                                     <option value="pt_BR" {{global.language=='pt_BR'|isSelected}}>Portuguese (Brazil)</option>
                                     <option value="pt_PT" {{global.language=='pt_PT'|isSelected}}>Portuguese (Portugal)</option>
                                     <option value="ro" {{global.language=='ro'|isSelected}}>Romanian</option>
                                     <option value="ru" {{global.language=='ru'|isSelected}}>Russian</option>
+                                    <option value="sv" {{global.language=='sv'|isSelected}}>Swedish</option>
                                     <option value="th" {{global.language=='th'|isSelected}}>Thai</option>
                                     <option value="tr" {{global.language=='tr'|isSelected}}>Turkish</option>
                                     <option value="zh" {{global.language=='zh'|isSelected}}>Chinese</option>
@@ -105,23 +92,8 @@
                             </div>
                         </div>
 
-                        <div class="form-group row">
-                            <label for="frmGlobal-verbose" class="col-sm-3 col-form-label">Verbose</label>
-                            <div class="col-sm-9">
-                                <label class="c-switch c-switch-label c-switch-pill c-switch-success fix-pill-form">
-                                    <input class="c-switch-input" type="checkbox" id="frmGlobal-verbose"
-                                        {{global.verbose}} {{disableWrite}}>
-                                    <span class="c-switch-slider" data-checked="On" data-unchecked="Off"></span>
-                                </label>
-                                <span class="form-text text-muted">
-                                    By enabling verbosity you will see more detailed information in the terminal. <br>
-                                    <b>Note:</b> Do not enable this unless you are troubleshooting errors.
-                                </span>
-                            </div>
-                        </div>
-
                         <div class="text-center mt-4">
-                            <button class="btn btn-sm btn-primary" type="submit" id="frmGlobal-save" {{disableWrite}}>
+                            <button class="btn btn-sm btn-primary" type="submit" id="frmGlobal-save" {{readOnly|isDisabled}}>
                                 <i class="icon-check"></i> Save Global Settings
                             </button>
                         </div>
@@ -135,7 +107,7 @@
                                 <span class="text-danger">*</span></label>
                             <div class="col-sm-9">
                                 <input type="text" class="form-control" id="frmFXServer-serverDataPath" value="{{fxserver.serverDataPath|undef}}"
-                                    placeholder="C:/Users/Admin/Desktop/server01" {{disableWrite}}>
+                                    placeholder="C:/Users/Admin/Desktop/server01" {{readOnly|isDisabled}}>
                                 <span class="form-text text-muted">
                                     The folder that <strong>contains</strong> the <code>resources</code> and
                                     <code>cache</code> folders, usually it's here that you put your
@@ -149,7 +121,7 @@
                                 <span class="text-danger">*</span></label>
                             <div class="col-sm-9">
                                 <input type="text" class="form-control" id="frmFXServer-cfgPath" value="{{fxserver.cfgPath|undef}}"
-                                    placeholder="C:/Users/Admin/Desktop/server01/server.cfg" {{disableWrite}}>
+                                    placeholder="C:/Users/Admin/Desktop/server01/server.cfg" {{readOnly|isDisabled}}>
                                 <span class="form-text text-muted">
                                     The path to your server config file, usually named <code>server.cfg</code>. <br>
                                     This can either be absolute, or relative to the Server Data folder.
@@ -163,7 +135,7 @@
                             </label>
                             <div class="col-sm-9">
                                 <input type="text" class="form-control" id="frmFXServer-commandLine" value="{{fxserver.commandLine|undef}}"
-                                    placeholder="+set onesync_enableInfinity 1" {{disableWrite}}>
+                                    placeholder="+set onesync_enableInfinity 1" {{readOnly|isDisabled}}>
                                 <span class="form-text text-muted">
                                     Additional command-line arguments to pass to the FXServer instance. <br>
                                     For example, you can add <code>+set</code> and <code>+exec</code> commands.
@@ -176,7 +148,7 @@
                             <div class="col-sm-9">
                                 <label class="c-switch c-switch-label c-switch-pill c-switch-success fix-pill-form">
                                     <input class="c-switch-input" type="checkbox" id="frmFXServer-onesync"
-                                        {{fxserver.onesync|undef}} {{disableWrite}}>
+                                        {{fxserver.onesync|undef}} {{readOnly|isDisabled}}>
                                     <span class="c-switch-slider" data-checked="On" data-unchecked="Off"></span>
                                 </label>
                                 <span class="form-text text-muted">
@@ -190,7 +162,7 @@
                             <div class="col-sm-9">
                                 <label class="c-switch c-switch-label c-switch-pill c-switch-success fix-pill-form">
                                     <input class="c-switch-input" type="checkbox" id="frmFXServer-autostart"
-                                        {{fxserver.autostart|undef}} {{disableWrite}}>
+                                        {{fxserver.autostart|undef}} {{readOnly|isDisabled}}>
                                     <span class="c-switch-slider" data-checked="On" data-unchecked="Off"></span>
                                 </label>
                                 <span class="form-text text-muted">
@@ -204,7 +176,7 @@
                             <div class="col-sm-9">
                                 <label class="c-switch c-switch-label c-switch-pill c-switch-success fix-pill-form">
                                     <input class="c-switch-input" type="checkbox" id="frmFXServer-quiet"
-                                        {{fxserver.quiet|undef}} {{disableWrite}}>
+                                        {{fxserver.quiet|undef}} {{readOnly|isDisabled}}>
                                     <span class="c-switch-slider" data-checked="On" data-unchecked="Off"></span>
                                 </label>
                                 <span class="form-text text-muted">
@@ -215,7 +187,7 @@
                         </div>
 
                         <div class="text-center mt-4">
-                            <button class="btn btn-sm btn-primary" type="submit" id="frmFXServer-save" {{disableWrite}}>
+                            <button class="btn btn-sm btn-primary" type="submit" id="frmFXServer-save" {{readOnly|isDisabled}}>
                                 <i class="icon-check"></i> Save FXServer Settings
                             </button>
                         </div>
@@ -228,7 +200,7 @@
                             <label for="frmMonitor-schedule" class="col-sm-3 col-form-label">Scheduled Restarts</label>
                             <div class="col-sm-9">
                                 <input type="text" class="form-control" id="frmMonitor-schedule" value="{{monitor.restarterSchedule|undef}}"
-                                    placeholder="05:00, 13:00" {{disableWrite}}>
+                                    placeholder="05:00, 13:00" {{readOnly|isDisabled}}>
                                 <span class="form-text text-danger" id="frmMonitor-timezoneAlert"></span>
                                 <span class="form-text text-muted">
                                     At which times of day to restart the server. Leave it blank to disable this feature. <br>
@@ -240,7 +212,7 @@
                         </div>
 
                         <div class="text-center mt-4">
-                            <button class="btn btn-sm btn-primary" type="submit" id="frmMonitor-save" {{disableWrite}}>
+                            <button class="btn btn-sm btn-primary" type="submit" id="frmMonitor-save" {{readOnly|isDisabled}}>
                                 <i class="icon-check"></i> Save Monitor/Restarter Settings
                             </button>
                         </div>
@@ -254,7 +226,7 @@
                             <div class="col-sm-9">
                                 <label class="c-switch c-switch-label c-switch-pill c-switch-success fix-pill-form">
                                     <input class="c-switch-input" type="checkbox" id="frmDiscord-enabled"
-                                        {{discord.enabled|undef}} {{disableWrite}}>
+                                        {{discord.enabled|undef}} {{readOnly|isDisabled}}>
                                     <span class="c-switch-slider" data-checked="On" data-unchecked="Off"></span>
                                 </label>
                                 <span class="form-text text-muted">
@@ -267,8 +239,9 @@
                             <label for="frmDiscord-token" class="col-sm-3 col-form-label">Token <span
                                     class="text-danger">*</span></label>
                             <div class="col-sm-9">
-                                <input type="text" class="form-control" id="frmDiscord-token" value="{{discord.token|undef}}"
-                                    maxlength="96" {{disableWrite}}>
+                                <input type="text" class="form-control" id="frmDiscord-token" 
+                                    value="{{if(!options.readOnly)}}{{discord.token|undef}}{{#else}}[redacted]{{/if}}"
+                                    maxlength="96" {{readOnly|isDisabled}}>
                                 <span class="form-text text-muted">
                                     To get a token and the bot to join your server, follow these two guides:
                                     <a href="https://discordjs.guide/preparations/setting-up-a-bot-application.html"
@@ -283,7 +256,7 @@
                             <label for="frmDiscord-announceChannel" class="col-sm-3 col-form-label">Announcements <br>Channel ID</label>
                             <div class="col-sm-9">
                                 <input type="number" class="form-control" id="frmDiscord-announceChannel"
-                                    value="{{discord.announceChannel|undef}}" {{disableWrite}}>
+                                    value="{{discord.announceChannel|undef}}" {{readOnly|isDisabled}}>
                                 <span class="form-text text-muted">
                                     The ID of the channel to send Announcements (eg server restarts). <br>
                                     Leave it blank to disable this feature. <br>
@@ -301,16 +274,31 @@
                             </label>
                             <div class="col-sm-9">
                                 <input type="text" class="form-control" id="frmDiscord-statusCommand" value="{{discord.statusCommand|undef}}"
-                                    placeholder="/status" {{disableWrite}}>
+                                    placeholder="/status" {{readOnly|isDisabled}}>
                                 <span class="form-text text-muted">
                                     The command that will trigger a status message from the bot.
                                 </span>
                             </div>
                         </div>
 
+                        <div class="form-group row">
+                            <label for="frmDiscord-statusMessage" class="col-sm-3 col-form-label">
+                                Status Message
+                                <span class="text-danger">*</span>
+                            </label>
+                            <div class="col-sm-9">
+                                <textarea class="form-control" id="frmDiscord-statusMessage" rows="4" 
+                                    placeholder="**IP:** `connect cfx.re/join/xxxxxx`&#10;**Players:** <players>&#10;**Uptime:** <uptime>" {{readOnly|isDisabled}}>{{discord.statusMessage|undef}}</textarea>
+                                <span class="form-text text-muted">
+                                    The command response. <br>
+                                    Supported placeholders: <code>players</code>, <code>port</code>, <code>uptime</code>.
+                                </span>
+                            </div>
+                        </div>
+
 
                         <div class="text-center mt-4">
-                            <button class="btn btn-sm btn-primary" type="submit" id="frmDiscord-save" {{disableWrite}}>
+                            <button class="btn btn-sm btn-primary" type="submit" id="frmDiscord-save" {{readOnly|isDisabled}}>
                                 <i class="icon-check"></i> Save Discord Settings
                             </button>
                         </div>
@@ -346,11 +334,10 @@
     $('#frmGlobal-save').click(function () {
         let data = {
             serverName: $('#frmGlobal-serverName').val().trim(),
-            publicIP: $('#frmGlobal-publicIP').val().trim(),
             language: $('#frmGlobal-language').val(),
             verbose: $('#frmGlobal-verbose').is(':checked')
         }
-        if (!data.serverName.length || !data.publicIP.length) {
+        if (!data.serverName.length) {
             var notify = $.notify({ message: 'The fields with "*" are required.' }, { type: 'warning' });
             return;
         }
@@ -445,9 +432,10 @@
             enabled: ($('#frmDiscord-enabled').is(':checked') === true),
             token: $('#frmDiscord-token').val().trim(),
             announceChannel: $('#frmDiscord-announceChannel').val().trim(),
-            statusCommand: $('#frmDiscord-statusCommand').val().trim()
+            statusCommand: $('#frmDiscord-statusCommand').val().trim(),
+            statusMessage: $('#frmDiscord-statusMessage').val().trim()
         };
-        if (data.enabled && (!data.token.length || !data.statusCommand.length)) {
+        if (data.enabled && (!data.token.length || !data.statusCommand.length || !data.statusMessage.length)) {
             var notify = $.notify({ message: 'The fields with "*" are required when the bot is enabled.' }, { type: 'warning' });
             return;
         }

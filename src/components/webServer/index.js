@@ -16,9 +16,9 @@ const { customAlphabet } = require('nanoid');
 const dict51 = require('nanoid-dictionary/nolookalikes');
 const nanoid = customAlphabet(dict51, 20);
 
-const ac = require('ansi-colors');
+const chalk = require('chalk');
 const { setHttpCallback } = require('@citizenfx/http-wrapper');
-const { dir, log, logOk, logWarn, logError} = require('../../extras/console')(modulename);
+const { dir, log, logOk, logWarn, logError } = require('../../extras/console')(modulename);
 const {requestAuth} = require('./requestAuthenticator');
 const ctxUtils = require('./ctxUtils.js');
 
@@ -55,8 +55,19 @@ module.exports = class WebServer {
         //Setting up app
         this.app.use(ctxUtils);
         this.app.on('error', (error, ctx) => {
-            logWarn(`Probably harmless error on ${ctx.path}`);
-            dir(error)
+            if(
+                typeof error.code == 'string' && 
+                (error.code.startsWith('HPE_') || error.code.startsWith('ECONN'))
+            ){
+                if(GlobalData.verbose){
+                    logError(`Probably harmless error on ${ctx.path}`);
+                    dir(error);
+                }
+            }else{
+                logError(`Probably harmless error on ${ctx.path}`);
+                logError('Please be kind and send a screenshot of this error to the txAdmin developer.');
+                dir(error)
+            }
         });
         
         //Setting up timeout/error/no-output/413:
@@ -154,7 +165,7 @@ module.exports = class WebServer {
             try {
                 let urlConvar = GetConvar('web_baseUrl', 'false');
                 if(validUrlRegex.test(urlConvar)){
-                    logOk(`Listening at ` + ac.inverse(` https://${urlConvar}/ `));
+                    logOk(`Listening at ` + chalk.inverse(` https://${urlConvar}/ `));
                     GlobalData.cfxUrl = urlConvar;
                     clearInterval(getUrlInterval);
                 }
@@ -178,7 +189,7 @@ module.exports = class WebServer {
                 process.exit();
             });
             this.httpServer.listen(GlobalData.txAdminPort, '0.0.0.0', () => {
-                logOk(`Listening at ` + ac.inverse(` http://localhost:${GlobalData.txAdminPort}/ `));
+                logOk(`Listening at ` + chalk.inverse(` http://localhost:${GlobalData.txAdminPort}/ `));
             });
         } catch (error) {
             logError('Failed to start HTTP server with error:');

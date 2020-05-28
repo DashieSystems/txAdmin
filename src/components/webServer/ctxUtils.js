@@ -2,15 +2,18 @@
 const modulename = 'WebCtxUtils';
 const fs = require('fs-extra');
 const path = require('path');
+const chalk = require('chalk');
 const sqrl = require("squirrelly");
 const helpers = require('../../extras/helpers');
-const { dir, log, logOk, logWarn, logError} = require('../../extras/console')(modulename);
+const { dir, log, logOk, logWarn, logError } = require('../../extras/console')(modulename);
 
 //Helper functions
 const isUndefined = (x) => { return (typeof x === 'undefined') };
+const anyUndefined = (...args) => { return [...args].some(x => (typeof x === 'undefined')) };
 const getRenderErrorText = (view, error, data) => {
     logError(`Error rendering ${view}.`);
     if(GlobalData.verbose) dir(error)
+    if(!isUndefined(data.discord) && !isUndefined(data.discord.token)) data.discord.token = '[redacted]';
     out = `<pre>\n`;
     out += `Error rendering '${view}'.\n`;
     out += `Message: ${error.message}\n`;
@@ -61,6 +64,7 @@ async function renderMasterView(view, reqSess, data){
     data.profilePicture = (reqSess && reqSess.auth && reqSess.auth.picture)? reqSess.auth.picture : 'img/default_avatar.png';
     data.isTempPassword = (reqSess && reqSess.auth && reqSess.auth.isTempPassword);
     data.isLinux = (GlobalData.osType == 'linux');
+    data.showAdvanced = (process.env.APP_ENV !== 'webpack' || GlobalData.verbose);
 
     let out;
     try {
@@ -142,7 +146,7 @@ async function renderSoloView(view, data){
  * @param {string} data
  */
 function appendLog(ctx, data){
-    log(`Executing "${data}"`);
+    log(`Executing ` + chalk.inverse(' ' + data + ' '));
     globals.logger.append(`[${ctx.ip}][${ctx.session.auth.username}] ${data}`);
 }
 

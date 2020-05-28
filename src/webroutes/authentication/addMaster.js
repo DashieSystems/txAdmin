@@ -1,6 +1,6 @@
 //Requires
 const modulename = 'WebServer:AddMaster';
-const { dir, log, logOk, logWarn, logError} = require('../../extras/console')(modulename);
+const { dir, log, logOk, logWarn, logError } = require('../../extras/console')(modulename);
 
 //Helper functions
 const isUndefined = (x) => { return (typeof x === 'undefined') };
@@ -93,7 +93,7 @@ async function handleCallback(ctx) {
         tokenSet = await globals.authenticator.providers.citizenfx.processCallback(ctx, currentURL, ctx.session._sessCtx.externalKey);
     } catch (error) {
         let message;
-        if(error.message.startsWith('JWT expired') || error.message.startsWith('JWT not active yet')){
+        if(!isUndefined(error.tolerance)){
             message = `Code Exchange error.\r\nPlease Update/Synchronize your VPS clock.`;
         }else{
             message = `Code Exchange error:\r\n${error.message}.`;

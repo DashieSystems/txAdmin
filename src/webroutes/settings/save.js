@@ -3,7 +3,7 @@ const modulename = 'WebServer:SettingsSave';
 const fs = require('fs');
 const slash = require('slash');
 const path = require('path');
-const { dir, log, logOk, logWarn, logError} = require('../../extras/console')(modulename);
+const { dir, log, logOk, logWarn, logError } = require('../../extras/console')(modulename);
 const helpers = require('../../extras/helpers');
 
 //Helper functions
@@ -55,7 +55,6 @@ function handleGlobal(ctx) {
     //Sanity check
     if(
         isUndefined(ctx.request.body.serverName) ||
-        isUndefined(ctx.request.body.publicIP) ||
         isUndefined(ctx.request.body.language) ||
         isUndefined(ctx.request.body.verbose)
     ){
@@ -65,7 +64,6 @@ function handleGlobal(ctx) {
     //Prepare body input
     let cfg = {
         serverName: ctx.request.body.serverName.trim(),
-        publicIP: ctx.request.body.publicIP.trim(),
         language: ctx.request.body.language.trim(),
         verbose: (ctx.request.body.verbose === 'true')
     }
@@ -81,12 +79,8 @@ function handleGlobal(ctx) {
     //Preparing & saving config
     let newConfig = globals.configVault.getScopedStructure('global');
     newConfig.serverName = cfg.serverName;
-    newConfig.publicIP = cfg.publicIP;
     newConfig.language = cfg.language;
     let saveStatus = globals.configVault.saveProfile('global', newConfig);
-
-    //FIXME: until there is an advanced tab or something
-    GlobalData.verbose = cfg.verbose;
 
     //Sending output
     if(saveStatus){
@@ -251,7 +245,8 @@ function handleDiscord(ctx) {
         isUndefined(ctx.request.body.enabled) ||
         isUndefined(ctx.request.body.token) ||
         isUndefined(ctx.request.body.announceChannel) ||
-        isUndefined(ctx.request.body.statusCommand)
+        isUndefined(ctx.request.body.statusCommand) ||
+        isUndefined(ctx.request.body.statusMessage)
     ){
         return ctx.utils.error(400, 'Invalid Request - missing parameters');
     }
@@ -261,7 +256,8 @@ function handleDiscord(ctx) {
         enabled: (ctx.request.body.enabled === 'true'),
         token: ctx.request.body.token.trim(),
         announceChannel: ctx.request.body.announceChannel.trim(),
-        statusCommand: ctx.request.body.statusCommand.trim()
+        statusCommand: ctx.request.body.statusCommand.trim(),
+        statusMessage: ctx.request.body.statusMessage.trim(),
     }
 
     //Preparing & saving config
@@ -270,6 +266,7 @@ function handleDiscord(ctx) {
     newConfig.token = cfg.token;
     newConfig.announceChannel = (cfg.announceChannel.length)? cfg.announceChannel : false;
     newConfig.statusCommand = cfg.statusCommand;
+    newConfig.statusMessage = cfg.statusMessage;
     let saveStatus = globals.configVault.saveProfile('discordBot', newConfig);
 
     //Sending output

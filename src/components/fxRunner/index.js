@@ -6,7 +6,7 @@ const os = require('os');
 const sleep = require('util').promisify((a, f) => setTimeout(f, a));
 const { parseArgsStringToArgv } = require('string-argv');
 const pidtree = require('pidtree');
-const { dir, log, logOk, logWarn, logError} = require('../../extras/console')(modulename);
+const { dir, log, logOk, logWarn, logError } = require('../../extras/console')(modulename);
 const helpers = require('../../extras/helpers');
 const ConsoleBuffer = require('./consoleBuffer');
 
@@ -55,10 +55,12 @@ module.exports = class FXRunner {
         }
 
         // Prepare default args
+        const controllerChecks = globals.playerController.config.onJoinCheck;
         const cmdArgs = [
             '+sets', 'txAdmin-version', GlobalData.txAdminVersion,
             '+set', 'txAdmin-apiPort', GlobalData.txAdminPort,
             '+set', 'txAdmin-apiToken', globals.webServer.intercomToken,
+            '+set', 'txAdmin-checkPlayerJoin', (controllerChecks.ban || controllerChecks.whitelist).toString(),
             '+set', 'txAdminServerMode', 'true',
             '+start', GlobalData.resourceName, //NOTE: required for builds <= 2391
             '+set', 'onesync_enabled', (this.config.onesync).toString(),
@@ -216,48 +218,8 @@ module.exports = class FXRunner {
         this.fxChild.stderr.on('error', (data) => {});
         this.fxChild.stderr.on('data', this.consoleBuffer.writeError.bind(this.consoleBuffer));
 
-        //Setting up process priority
-        setTimeout(() => {
-            this.setProcPriority();
-        }, 2500);
-
         return null;
     }//Final spawnServer()
-
-
-    //================================================================
-    /**
-     * Sets the process priority to all fxChild (cmd/bash) children (fxserver)3
-     * TODO: deprecate this feature. Nobody uses...
-     */
-    async setProcPriority(){
-        //Sanity check
-        if(typeof this.config.setPriority !== 'string') return;
-        let priority = this.config.setPriority.toUpperCase();
-
-        if(priority === 'NORMAL') return;
-        let validPriorities = ['LOW', 'BELOW_NORMAL', 'NORMAL', 'ABOVE_NORMAL', 'HIGH', 'HIGHEST'];
-        if(!validPriorities.includes(priority)){
-            logWarn(`Couldn't set the processes priority: Invalid priority value. (Use one of these: ${validPriorities.join()})`);
-            return;
-        }
-        if(!this.fxChild.pid){
-            logWarn(`Couldn't set the processes priority: Unknown PID.`);
-            return;
-        }
-
-        //Get children and set priorities
-        try {
-            let pids = await pidtree(this.fxChild.pid);
-            pids.forEach(pid => {
-                os.setPriority(pid, os.constants.priority['PRIORITY_'+priority]);
-            });
-            log(`Priority set ${priority} for processes ${pids.join()}`)
-        } catch (error) {
-            logWarn("Couldn't set the processes priority.");
-            if(GlobalData.verbose) dir(error);
-        }
-    }
 
 
     //================================================================

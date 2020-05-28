@@ -2,7 +2,7 @@
 const modulename = 'WebServer:GetStatus';
 const os = require('os');
 const clone = require('clone');
-const { dir, log, logOk, logWarn, logError} = require('../extras/console')(modulename);
+const { dir, log, logOk, logWarn, logError } = require('../extras/console')(modulename);
 
 
 /**
@@ -126,10 +126,13 @@ function prepareHostData() {
 
 //==============================================================
 /**
- * Returns the html playerlist
+ * Returns the activePlayers list in /playerlist.json compatible-ish format
+ * 
+ * FIXME: This is very wasteful, we need to start only sending the playerlist diff for the admins.
+ *        Could be done via socket.io, and then playerlist changed would push update events
  */
 function preparePlayersData() {
-    return clone(globals.monitor.tmpPlayers); //FIXME: edit this part
+    return globals.playerController.getPlayerList();
 }
 
 
@@ -148,6 +151,6 @@ function prepareMetaData() {
     }
     return {
         favicon,
-        title: (globals.monitor.currentStatus == 'ONLINE') ? `(${globals.monitor.tmpPlayers.length}) txAdmin` : 'txAdmin'
+        title: (globals.monitor.currentStatus == 'ONLINE') ? `(${globals.playerController.activePlayers.length}) txAdmin` : 'txAdmin'
     };
 }

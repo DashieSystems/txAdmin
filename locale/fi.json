@@ -4,7 +4,7 @@
         "humanizer_language": "fi"
     },
     "restarter": {
-        "crash_detected": "kaatuminen havaittu",
+        "crash_detected": "Kaatuminen havaittu",
         "partial_crash_warn": "Osittaisen kaatumisen vuoksi palvelin käynnistyy uudelleen minuutin kuluttua. Poistukaa serveriltä nyt.",
         "partial_crash_warn_discord": "Osittaisen kaatumisen vuoksi **%{servername}** käynnistyy uudelleen minuutin kuluttua.",
         "schedule_reason": "Ajoitettu uudelleenkäynnistys kello %{time}",
@@ -21,5 +21,10 @@
     "discord": {
         "status_online": "**%{servername}** on **auki**!",
         "status_offline": "**%{servername}** on **kiinni**!"
+    },
+    "nui_warning": {
+        "title": "VAROITUS",
+        "warned_by": "Sinua varoitti:",
+        "instruction": "Pidä välilyöntiä pohjassa 10 sekunttia jatkaaksesi."
     }
 }

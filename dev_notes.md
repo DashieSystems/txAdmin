@@ -65,69 +65,90 @@
 - [x] improved monitor handling of very low-spec servers 
 - [x] add greek + pt_pt
 > v2.4.0
-- [ ] add an fxserver changelog page
+- [x] create `/advanced` page and move the verbosity switch there
+- [x] fixed updateChecker error handling and added a message for pre-releases
+> v2.4.1
+- [x] create playerController module (started on v2.4.0)
+- [x] fix escaping issues on commands.js
+- [x] deprecate discord custom commands and set process priority features
+- [x] remove the public ip setting and make the /status configurable
+- [x] redact discord token from the settings page for admins with only "settings.view" permission
+- [x] fix serverlist not wiping after server shutting down
+- [x] update packages and change detection of clock skew
+> v2.4.2
+- [x] make the html of the new player modal
+- [x] make the NUI of the warn message
+- [x] code the modal actions (front+back+script+nui) for the online players
+- [x] removed the `Admins file reloaded` spam from verbosity.
+- [x] start the html of the new `/player/list` page
+- [x] split `common.js` into separate files?
+- [?] fix the double-player issue (timeout + fast rejoin?)
+- [x] cleanup playerController for debug/testing stuff
+- [x] add/test getRegisteredActions filters
+- [x] replace `ansi-colors` with `chalk` since they fixed the performance issues
+- [x] re-add playerConnecting the whitelist/ban checking function (lua+intercom+playerController)
+- [x] implement whitelist registration logic
+- [x] block html usage on admin kick reason 
+- [.] prepare `/player/list` for a beta release with limited UX
+- [x] check the time played algo, or the database saving - not working properly?
+- [ ] create action for giving whitelist to a license
+- [ ] link `/player/list` "ban identifiers" to actions endpoint
+- [ ] link `/player/list` "revoke action" to actions endpoint
+- [ ] link `/player/list` "accept" to actions endpoint
+
+- [ ] limit `/player/list` with permissions
+- [ ] adapt all modal actions to offline players
+- [ ] add logging to the ban and warn features
+- [ ] make a settings tab for the player controller (dont forget to reset `checkPlayerJoin` convar!)
+- [ ] change `config.minSessionTime` to 15m
+- [ ] check everything done for xss
+- [ ] test on latest build
+
+actual todo:
+NOTE: when opening a player from the offline list, disable ID-requiring actions like dm,kick,warning
 
 > Soon™
+- [ ] adapt kick messages to use some basic HTML for formatting
+- [ ] change Server Log page to use the new modal
+- [ ] replace `clone` with `lodash/clonedeep` and check the places where I'm doing `Object.assign()` for shallow clones
 - [ ] convert cl_logger.js to lua, and stop it when not in `monitorMode`
+- [ ] try again the upgrade to Discord.js v12
+- [ ] Add `<fivem://connect/xxxxx>` to `/status` by getting `web_baseUrl` maybe from the heartbeat
+- [ ] add a commend system?
+- [ ] add stopwatch (or something) to the db functions and print on `/diagnostics`
+- [ ] change webserver token every time the server starts
+
+> Soon™®
+- [ ] tweak dashboard update checker behavior
+- [ ] add some chart to the players page?
+- [ ] add an fxserver changelog page
 - [ ] Social auth provider setup retry every 15 seconds
 - [ ] show error when saving discord settings with wrong token
-
-
-How to fix the restart loop problem:
-- [x] launch fxserver directly instead of using `cmd.exe /c` or `/bin/sh`
-- [x] create fxRunner.history[] with pid, ts.started, ts.killed, ts.exited, ts.closed
-- [x] create fxRunner.getStatus()
-- [x] make monitor use the fxRunner.getStatus()
-- [x] make monitor show status on the interface when monitor status != online
-- [ ] make fxRunner.spawn() wait for last history = closed
-- [ ] add fxRunner.history[] card to the diagnostics interface
-Another idea:
-    - wait for the last one to close for up to 15 seconds
-    - cache all the endpoint_add_xxx commands
-    - start server
-    - if it errors out, try to execute those commands again
-For the monitor:
-    - create checkStatus, that will check the timestamp of the last successfull client heartbeat and /info heartbeat
-    - execute it every 1 second
-    - execute /info heartbeat in the same setInterval
-
-
-# For the new access control system
-- vRP grabs the first matched ID
-- esx uses licenses
-- For txAdmin:
-    - `players` table: index by license ID
-        - Name (overwrite on every update)
-        - Last connection timestamp
-        - Notes
-        - Online time counter
-    - `ids_events`
-        - timestamp
-        - IDs array
-        - author (the admin name)
-        - type [ban|warn]
-        - message (reason)
-
-- How do I do whitelisting in a smart way? 
-    - By license? 
-    - By any ID? 
-    - Could we add a temp ID to memory and show it on the `deferral.done()`? 
-
+- [ ] break down playerController into separate files?
+- [ ] rename playerController to playerManager?
 
 
 ## "in the roadmap"
+- [ ] Auto updater for txAdmin?
 - [ ] Check config management libraries (specially 'convict' by Mozilla and nconf)
-- [ ] Make messages/commands.json via lowdb and remove the `Players online` and `File reloaded` spam.
 - [ ] Add "discord client id" in the admin settings, this would enable "/kick @user"
-- [ ] Hide the verbosity option. People don't fucking read and click on it anyway,
+- [ ] revisit the issue with server restarting too fast (before close) and the the bind failing, causing restart loop. Almost all cases were windows server 2012.
 - [ ] xxxxxx
 
 
-## ETC
+## Todas as funções que preciso programar (target type) [pct que precisa de comando]:
+    - save note     (license) [0%]
+    - warn player   (id/arr)  [100%]
+    - ban player    (id/arr)  [75%]
+    - revoke action (actID)   [0%]
+    - search        (name, license, csv ids)
+
+
+## CLTR+C+V
 ```bash
 # run
 cd /e/FiveM/builds
-npx nodemon --watch "2401/citizen/system_resources/monitor/src/*" --exec "2401/FXServer.exe +set txAdminVerbose truex"
+npx nodemon --watch "2401/citizen/system_resources/monitor/src/*" --exec "2401/FXServer.exe +set txAdminVerbose truex +set txAdminFakePlayerlist yesplzx"
 
 # build
 cd /e/FiveM/builds/2401/citizen/system_resources/monitor
@@ -136,6 +157,9 @@ npm run build
 
 # upgrade util:
 npm-upgrade
+
+# F8
+con_miniconChannels script:monitor*
 ```
 
 ### Links + random stuff
@@ -229,7 +253,7 @@ tasks:
       pattern: 's/wtf/ftw/g'
   - append_file:
       path: server.cfg
-      data: |
+      data: 
          start wtfwtf
          start uberadmin
 ```

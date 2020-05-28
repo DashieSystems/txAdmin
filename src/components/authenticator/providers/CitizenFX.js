@@ -2,7 +2,7 @@
 const modulename = 'Authenticator:CitizenFXProvider';
 const crypto  = require('crypto');
 const { Issuer, custom } = require('openid-client');
-const { dir, log, logOk, logWarn, logError} = require('../../../extras/console')(modulename);
+const { dir, log, logOk, logWarn, logError } = require('../../../extras/console')(modulename);
 
 
 module.exports = class CitizenFXProvider {
@@ -104,11 +104,12 @@ module.exports = class CitizenFXProvider {
 
         //Perform introspection
         let userInfo = await this.client.userinfo(accessToken);
+        dir(userInfo)
         if(typeof userInfo !== 'object') throw new Error('userInfo is not an object');
-        if(typeof userInfo.name != 'string' && !userInfo.name.length) throw new Error('name not present');
-        if(typeof userInfo.picture != 'string' && !userInfo.picture.length) throw new Error('picture not present');
-        if(typeof userInfo.profile != 'string' && !userInfo.profile.length) throw new Error('profile not present');
-        if(typeof userInfo.nameid != 'string' && !userInfo.nameid.length) throw new Error('nameid not present');
+        if(typeof userInfo.name != 'string' || !userInfo.name.length) throw new Error('name not present');
+        if(typeof userInfo.profile != 'string' || !userInfo.profile.length) throw new Error('profile not present');
+        if(typeof userInfo.nameid != 'string' || !userInfo.nameid.length) throw new Error('nameid not present');
+        if(typeof userInfo.picture != 'string' || !userInfo.picture.length) userInfo.picture = null;
         return userInfo;
     }
 

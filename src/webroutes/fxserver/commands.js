@@ -1,11 +1,13 @@
 //Requires
 const modulename = 'WebServer:FXServerCommands';
 const xss = require('../../extras/xss')();
-const { dir, log, logOk, logWarn, logError} = require('../../extras/console')(modulename);
-
+const { dir, log, logOk, logWarn, logError } = require('../../extras/console')(modulename);
 
 //Helper functions
-const escape = (x) => {return x.replace(/\"/g, '\\"');};
+const escape = (x) => {return x.replace(/\"/g, '\uff02');};
+const formatCommand = (cmd, ...params) => {
+    return `${cmd} "` + [...params].map(escape).join(`" "`) + `"`;
+};
 
 
 /**
@@ -42,8 +44,8 @@ module.exports = async function FXServerCommands(ctx) {
 
 
     //==============================================
+    //DEBUG: Only available in the /advanced page
     if(action == 'profile_monitor'){
-        //NOTE: undocumented feature... might come in handy
         if(!ensurePermission(ctx, 'all_permissions')) return false;
         ctx.utils.appendLog('Profiling txAdmin instance.');
         
@@ -65,36 +67,8 @@ module.exports = async function FXServerCommands(ctx) {
 
     //==============================================
     }else if(action == 'admin_broadcast'){
-        //FIXME: remove this test
-        // globals.disableReply = (parameter == '1');
-        // return logError(`setting disableReply to ${globals.disableReply}`);
         if(!ensurePermission(ctx, 'commands.message')) return false;
-        let cmd = `txaBroadcast "${escape(ctx.session.auth.username)}" "${escape(parameter)}"`;
-        ctx.utils.appendLog(cmd);
-        let toResp = await globals.fxRunner.srvCmdBuffer(cmd);
-        return sendAlertOutput(ctx, toResp);
-
-    //==============================================
-    }else if(action == 'admin_dm'){
-        if(!ensurePermission(ctx, 'commands.message')) return false;
-        if(!Array.isArray(parameter) || parameter.length !== 2){
-            return sendAlertOutput(ctx, 'Invalid request');
-        }
-        let cmd = `txaSendDM ${parameter[0]} "${escape(ctx.session.auth.username)}" "${escape(parameter[1])}"`;
-        ctx.utils.appendLog(cmd);
-        let toResp = await globals.fxRunner.srvCmdBuffer(cmd);
-        return sendAlertOutput(ctx, toResp);
-
-    //==============================================
-    }else if(action == 'kick_player'){
-        if(!ensurePermission(ctx, 'commands.kick')) return false;
-        let cmd;
-        if(parameter[1].length){
-            reason = parameter[1].replace(/"/g,'\\"');
-            cmd = `txaKickID ${parameter[0]} "${reason}"`;
-        }else{
-            cmd = `txaKickID ${parameter[0]}`;
-        }
+        let cmd = formatCommand('txaBroadcast', ctx.session.auth.username, parameter);
         ctx.utils.appendLog(cmd);
         let toResp = await globals.fxRunner.srvCmdBuffer(cmd);
         return sendAlertOutput(ctx, toResp);
@@ -104,8 +78,7 @@ module.exports = async function FXServerCommands(ctx) {
         if(!ensurePermission(ctx, 'commands.kick')) return false;
         let cmd;
         if(parameter.length){
-            reason = parameter.replace(/"/g,'\\"');
-            cmd = `txaKickAll "${reason}"`;
+            cmd = formatCommand('txaKickAll', parameter);
         }else{
             cmd = `txaKickAll "txAdmin Web Panel"`;
         }
@@ -116,7 +89,7 @@ module.exports = async function FXServerCommands(ctx) {
     //==============================================
     }else if(action == 'restart_res'){
         if(!ensurePermission(ctx, 'commands.resources')) return false;
-        let cmd = `restart ${parameter}`;
+        let cmd = formatCommand('restart', parameter);
         ctx.utils.appendLog(cmd);
         let toResp = await globals.fxRunner.srvCmdBuffer(cmd);
         return sendAlertOutput(ctx, toResp);
@@ -124,7 +97,7 @@ module.exports = async function FXServerCommands(ctx) {
     //==============================================
     }else if(action == 'start_res'){
         if(!ensurePermission(ctx, 'commands.resources')) return false;
-        let cmd = `start ${parameter}`;
+        let cmd = formatCommand('start', parameter);
         ctx.utils.appendLog(cmd);
         let toResp = await globals.fxRunner.srvCmdBuffer(cmd);
         return sendAlertOutput(ctx, toResp);
@@ -132,7 +105,7 @@ module.exports = async function FXServerCommands(ctx) {
     //==============================================
     }else if(action == 'ensure_res'){
         if(!ensurePermission(ctx, 'commands.resources')) return false;
-        let cmd = `ensure ${parameter}`;
+        let cmd = formatCommand('ensure', parameter);
         ctx.utils.appendLog(cmd);
         let toResp = await globals.fxRunner.srvCmdBuffer(cmd);
         return sendAlertOutput(ctx, toResp);
@@ -140,7 +113,7 @@ module.exports = async function FXServerCommands(ctx) {
     //==============================================
     }else if(action == 'stop_res'){
         if(!ensurePermission(ctx, 'commands.resources')) return false;
-        let cmd = `stop ${parameter}`;
+        let cmd = formatCommand('stop', parameter);
         ctx.utils.appendLog(cmd);
         let toResp = await globals.fxRunner.srvCmdBuffer(cmd);
         return sendAlertOutput(ctx, toResp);
